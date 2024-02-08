@@ -87,7 +87,7 @@ model:
 
 data:
   task: Cond-NavierStokes2D
-  data_dir: null
+  data_dir: ./
   pde:
       n_scalar_components: 1
       n_vector_components: 1

@@ -119,6 +119,8 @@ def generate_trajectories_smoke(
         fluid_field, velocity_corrected = zip(
             *Parallel(n_jobs=n_parallel)(delayed(genfunc)(idx, rngs[idx]) for idx in tqdm(range(num_samples)))
         )
+    with utils.Timer() as gentime:
+        fluid_field, velocity_corrected = genfunc(0, rngs[0]) 
 
     logger.info(f"Took {gentime.dt:.3f} seconds")
 

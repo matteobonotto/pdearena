@@ -94,7 +94,7 @@ model:
 data:
 
   task: NavierStokes2D
-  data_dir: null
+  data_dir: ./
   time_history: 4
   time_future: 1
   time_gap: 0
