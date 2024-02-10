@@ -120,7 +120,70 @@ def generate_trajectories_smoke(
             *Parallel(n_jobs=n_parallel)(delayed(genfunc)(idx, rngs[idx]) for idx in tqdm(range(num_samples)))
         )
     with utils.Timer() as gentime:
+        rngs = np.random.randint(np.iinfo(np.int32).max, size=num_samples)
         fluid_field, velocity_corrected = genfunc(0, rngs[0]) 
+
+    ###
+    from matplotlib.animation import FuncAnimation, PillowWriter, FFMpegWriter
+    data = fluid_field
+    Lx, Ly = pde.Lx, pde.Ly
+
+    def contour_gif(
+            data,
+            animation_name = 'animation.mp4',
+            Lx = 1,
+            Ly = 1,
+            ):
+        global anim
+        x,y = np.meshgrid(
+            np.linspace(0,Lx,data.shape[1]),
+            np.linspace(0,Lx,data.shape[2])
+        )
+        Nt = data.shape[0]
+
+        fig = plt.figure()
+        ax = plt.axes(xlim=(0, Lx), ylim=(0, Ly), xlabel='x', ylabel='y')
+        cvals = np.linspace(0,data.max(),50)      # set contour values 
+        cont = plt.contourf(x, y, data[0,:,:], cvals)    # first image on screen
+        plt.colorbar()
+
+        # animation function
+        def animate(i):
+            global cont
+            z = data[i,:,:]
+            for c in cont.collections:
+                c.remove()  # removes only the contours, leaves the rest intact
+            cont = plt.contourf(x, y, z, cvals)
+            plt.title('t = %i:  %.2f' % (i,z[5,5]))
+            return cont
+
+        anim = FuncAnimation(fig, animate, frames=Nt, repeat=False)
+        anim.save(animation_name, writer=FFMpegWriter())
+        return anim
+
+    anim = contour_gif(data)
+
+    ###
+    import matplotlib.pyplot as plt
+    for i in range(fluid_field.shape[0]):
+        plt.imshow(fluid_field[i,...])
+        plt.show()
+    plt.imshow(fluid_field[-1,:,:])
+
+    fig,ax = plt.subplots()
+    def animate(i):
+        ax.clear()
+        plot =  ax.imshow(fluid_field[i,:,:])
+        return plot
+
+    ani = FuncAnimation(fig, animate, interval=40, blit=True, repeat=True, frames=100)    
+    ani.save("TLI.gif", dpi=300, writer=PillowWriter(fps=25))
+
+    import imageio
+    images = []
+    for i in range(fluid_field.shape[0]):
+        images.append(fluid_field[i,...])
+    imageio.mimsave('movie.gif', images)
 
     logger.info(f"Took {gentime.dt:.3f} seconds")
 
