@@ -58,6 +58,8 @@ def generate_trajectories_smoke(
     save_name = os.path.join(dirname, "_".join([pde_string, mode, str(seed), f"{pde.buoyancy_y:.5f}"]))
     if mode == "train":
         save_name = save_name + "_" + str(num_samples)
+    if os.path.isfile("".join([save_name, ".h5"])):
+        os.remove("".join([save_name, ".h5"]))
     h5f = h5py.File("".join([save_name, ".h5"]), "a")
     dataset = h5f.create_group(mode)
 
@@ -114,23 +116,96 @@ def generate_trajectories_smoke(
         velocity_corrected_ = np.asarray(velocity_[pde.skip_nt :]).squeeze()[:, :-1, :-1, :]
         return fluid_field_[:: pde.sample_rate, ...], velocity_corrected_[:: pde.sample_rate, ...]
 
-    with utils.Timer() as gentime:
-        rngs = np.random.randint(np.iinfo(np.int32).max, size=num_samples)
-        fluid_field, velocity_corrected = zip(
-            *Parallel(n_jobs=n_parallel)(delayed(genfunc)(idx, rngs[idx]) for idx in tqdm(range(num_samples)))
-        )
+    # with utils.Timer() as gentime:
+    #     rngs = np.random.randint(np.iinfo(np.int32).max, size=num_samples)
+    #     fluid_field, velocity_corrected = zip(
+    #         *Parallel(n_jobs=n_parallel)(delayed(genfunc)(idx, rngs[idx]) for idx in tqdm(range(num_samples)))
+    #     )
     with utils.Timer() as gentime:
         rngs = np.random.randint(np.iinfo(np.int32).max, size=num_samples)
         fluid_field, velocity_corrected = genfunc(0, rngs[0]) 
 
     ###
+    from pdedatagen.graphics import contour_gif
+    anim = contour_gif(fluid_field)
+
+
     from matplotlib.animation import FuncAnimation, PillowWriter, FFMpegWriter
+    import matplotlib.pyplot as plt
+
+
+    class Simulator:
+        def __init__(self, field,  Lx = 1, Ly = 1, namesave=None):
+            self.simulation_time = np.linspace(0, field.shape[0])
+            self.field = field 
+            self.cvals = np.linspace(0,self.field.max(),50)      # set contour values 
+            self.x, self.y = np.meshgrid(
+                np.linspace(0,Lx,field.shape[1]),
+                np.linspace(0,Ly,field.shape[2])
+                )
+            self.namesave = namesave
+
+        def update_plot(self, i):
+            z = self.field[i,:,:]
+            for c in self._p1:
+                c.remove()  # removes only the contours, leaves the rest intact
+            self._p1 = plt.contourf(self.x, self.y, z, self.cvals)
+            plt.title('t = %i:  %.2f' % (i,z[5,5]))
+            return self._p1
+        
+    #     def update_plot(self, i):
+    #         self._p1.set_data(self.simulation_time[:i], self._theta[:i])
+    #         self.fig.gca().relim()
+    #         self.fig.gca().autoscale_view() 
+    #         return self._p1,
+
+        def start_simulation(self):
+            self.fig, self.axes = plt.subplots()
+            self._p1 = plt.contourf(self.x, self.y, self.field[0,:,:], self.cvals).collections
+            self.ani = FuncAnimation(fig=self.fig,func=self.update_plot,interval=5, blit=True)
+            if self.namesave is not None:
+                self.ani.save(self.namesave, writer=FFMpegWriter())
+
+
+        # def test(self):
+        #     ims = []
+        #     for i in range(self.field[0]):
+        #         im = plt.contourf(self.x, self.y, self.field[i,:,:],latlon=True)
+        #         add_arts = im.collections
+        #         text = 't = %i' % (i)
+        #         te = ax.text(90, 90, text)
+        #         an = ax.annotate(text, xy=(0.45, 1.05), xycoords='axes fraction')
+        #         ims.append(add_arts + [te,an])
+
+            # ani = FuncAnimation(fig, ims)
+                
+    '''
+    from https://brushingupscience.com/2016/06/21/matplotlib-animations-the-easy-way/
+    
+    contour_opts = {'levels': np.linspace(-9, 9, 10),
+                'cmap':'RdBu', 'lw': 2}
+    cax = ax.contour(x, y, G[..., 0], **contour_opts)
+    
+    def animate(i):
+        ax.collections = []
+        ax.contour(x, y, G[..., i], **contour_opts)
+
+    '''
+
+    simHandler = Simulator(field = fluid_field)
+    simHandler.start_simulation()
+    simHandler.test()
+    qq = simHandler.update_plot(1)
+
+
+
+
     data = fluid_field
     Lx, Ly = pde.Lx, pde.Ly
 
     def contour_gif(
             data,
-            animation_name = 'animation.mp4',
+            animation_name = None,
             Lx = 1,
             Ly = 1,
             ):
@@ -149,16 +224,16 @@ def generate_trajectories_smoke(
 
         # animation function
         def animate(i):
-            global cont
             z = data[i,:,:]
-            for c in cont.collections:
-                c.remove()  # removes only the contours, leaves the rest intact
+            # for c in cont.collections:
+            #     c.remove()  # removes only the contours, leaves the rest intact
             cont = plt.contourf(x, y, z, cvals)
-            plt.title('t = %i:  %.2f' % (i,z[5,5]))
+            plt.title('t = %i' % (i))
             return cont
 
-        anim = FuncAnimation(fig, animate, frames=Nt, repeat=False)
-        anim.save(animation_name, writer=FFMpegWriter())
+        anim = FuncAnimation(fig, animate, frames=Nt, repeat=True)
+        if animation_name is not None:
+            anim.save(animation_name, writer=FFMpegWriter())
         return anim
 
     anim = contour_gif(data)
