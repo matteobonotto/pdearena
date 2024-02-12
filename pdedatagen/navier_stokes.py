@@ -178,10 +178,32 @@ def generate_trajectories_smoke(
         #         ims.append(add_arts + [te,an])
 
             # ani = FuncAnimation(fig, ims)
-                
+
+
+    Lx, Ly = pde.Lx, pde.Ly
+    G = fluid_field
+    x,y = np.meshgrid(
+            np.linspace(0,Lx,G.shape[1]),
+            np.linspace(0,Ly,G.shape[2])
+        )
+    contour_opts = {'levels': np.linspace(-9, 9, 10),
+                'cmap':'RdBu', 'lw': 2}
+    fig, ax = plt.subplots(figsize=(5, 3))
+    ax.set(xlim=(0, Lx), ylim=(0, Ly))
+    cax = ax.contourf(x, y, G[0,...])
+    
+    def animate(i):
+        ax.collections = []
+        ax.contourf(x, y, G[i, ...])
+
+    anim = FuncAnimation(fig, animate, interval=100, frames=G.shape[0]-1)
+ 
+    plt.draw()
+    plt.show()
+
     '''
     from https://brushingupscience.com/2016/06/21/matplotlib-animations-the-easy-way/
-    
+
     contour_opts = {'levels': np.linspace(-9, 9, 10),
                 'cmap':'RdBu', 'lw': 2}
     cax = ax.contour(x, y, G[..., 0], **contour_opts)
