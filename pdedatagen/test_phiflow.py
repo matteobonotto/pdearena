@@ -33,7 +33,7 @@ idx = 0
 s = 314101025
 pde_nx, pde_ny, pde_Lx, pde_Ly, pde_dt = 128, 128, 32., 32., 1.5
 pde_nt = 56
-pde_skip_nt = 8
+pde_skip_nt = 0
 pde_buoyancy_y = 0.5
 pde_nu = 0.01
 
@@ -79,11 +79,17 @@ fluid_field_ = np.asarray(fluid_field_[pde_skip_nt :]).squeeze()
 # velocity has the shape [nt, nx+1, ny+2, 2]
 velocity_corrected_ = np.asarray(velocity_[pde_skip_nt :]).squeeze()[:, :-1, :-1, :]
 # return fluid_field_[:: pde_sample_rate, ...], velocity_corrected_[:: pde_sample_rate, ...]
-import matplotlib.pyplot as plt
-for i in range(fluid_field_.shape[0]):
-    plt.imshow(fluid_field_[i,...])
 
-plt.imshow(velocity_corrected_[-1,:,:,0])
+# from helper_functions.graphics import Contourf2Gif
+# simHandler = Contourf2Gif(field = fluid_field_, namesave='test3.gif', cmap='inferno')
+# simHandler.start_simulation()
+
+
+# import matplotlib.pyplot as plt
+# for i in range(fluid_field_.shape[0]):
+#     plt.imshow(fluid_field_[i,...])
+
+# plt.imshow(velocity_corrected_[-1,:,:,0])
 
 '''
 
