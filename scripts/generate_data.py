@@ -14,6 +14,10 @@ from pdedatagen.maxwell import generate_trajectories_maxwell
 from pdedatagen.navier_stokes import generate_trajectories_smoke
 from pdedatagen.shallowwater import generate_trajectories_shallowwater
 
+import os
+import sys
+
+# sys.path.append(os.getcwd())
 
 def _safe_cpucount() -> int:
     cnt = os.cpu_count()

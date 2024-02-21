@@ -116,18 +116,18 @@ def generate_trajectories_smoke(
         velocity_corrected_ = np.asarray(velocity_[pde.skip_nt :]).squeeze()[:, :-1, :-1, :]
         return fluid_field_[:: pde.sample_rate, ...], velocity_corrected_[:: pde.sample_rate, ...]
 
-    with utils.Timer() as gentime:
-        rngs = np.random.randint(np.iinfo(np.int32).max, size=num_samples)
-        fluid_field, velocity_corrected = zip(
-            *Parallel(n_jobs=n_parallel)(delayed(genfunc)(idx, rngs[idx]) for idx in tqdm(range(num_samples)))
-        )
     # with utils.Timer() as gentime:
     #     rngs = np.random.randint(np.iinfo(np.int32).max, size=num_samples)
-    #     fluid_field, velocity_corrected = genfunc(0, rngs[25]) 
+    #     fluid_field, velocity_corrected = zip(
+    #         *Parallel(n_jobs=n_parallel)(delayed(genfunc)(idx, rngs[idx]) for idx in tqdm(range(num_samples)))
+    #     )
+    with utils.Timer() as gentime:
+        rngs = np.random.randint(np.iinfo(np.int32).max, size=num_samples)
+        fluid_field, velocity_corrected = genfunc(0, rngs[25]) 
 
-    # from helper_functions.graphics import Contourf2Gif
-    # simHandler = Contourf2Gif(field = fluid_field, namesave='test3.gif', cmap='inferno')
-    # simHandler.start_simulation()
+    from helper_functions.graphics import Contourf2Gif
+    simHandler = Contourf2Gif(field = fluid_field, namesave='test3.gif', cmap='inferno')
+    simHandler.start_simulation()
 
     logger.info(f"Took {gentime.dt:.3f} seconds")
 
