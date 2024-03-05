@@ -1,8 +1,11 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 import os
+import sys
+sys.path.append(os.getcwd())
 
 from pdearena import utils
+
 from pdearena.data.datamodule import PDEDataModule
 from pdearena.lr_scheduler import LinearWarmupCosineAnnealingLR  # noqa: F401
 from pdearena.models.pdemodel import PDEModel

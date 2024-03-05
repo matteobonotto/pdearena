@@ -1,0 +1,55 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: Current File",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "train",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/scripts/train.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "args": [
+                "-c", "configs/navierstokes2d.yaml",
+                "--data.data_dir=${workspaceFolder}/pdearena_data/NavierStokes2D_64x64/",
+                "--trainer.strategy=ddp", "--trainer.devices=1",
+                "--trainer.max_epochs=50",
+                "--data.batch_size=8",
+                "--data.time_gap=0", "--data.time_history=4", "--data.time_future=1",
+                "--model.name=Unetmod-64",
+                "--model.lr=2e-4",
+                "--optimizer=AdamW", "--optimizer.lr=2e-4", "--optimizer.weight_decay=1e-5",
+                "--lr_scheduler=LinearWarmupCosineAnnealingLR",
+                "--lr_scheduler.warmup_epochs=5",
+                "--lr_scheduler.max_epochs=50", "--lr_scheduler.eta_min=1e-7",
+            ]
+        },
+        {
+            "name": "generate_data",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/scripts/generate_data.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "args": [
+                "base=pdedatagen/configs/navierstokes2dsmoke.yaml",
+                "experiment=smoke", "mode=train", "samples=256", "seed=123", "pdeconfig.init_args.sample_rate=4", 
+                "dirname=${workspaceFolder}/pdearena_data/navierstokes",
+            ]
+        }
+        
+    ]
+}
+
+
+
