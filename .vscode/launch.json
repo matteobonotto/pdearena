@@ -18,7 +18,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/scripts/train.py",
             "console": "integratedTerminal",
-            "justMyCode": false,
+            "justMyCode": true,
             "args": [
                 "-c", "configs/navierstokes2d.yaml",
                 "--data.data_dir=${workspaceFolder}/pdearena_data/NavierStokes2D_64x64/",
@@ -40,7 +40,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/scripts/generate_data.py",
             "console": "integratedTerminal",
-            "justMyCode": false,
+            "justMyCode": true,
             "args": [
                 "base=pdedatagen/configs/navierstokes2dsmoke.yaml",
                 "experiment=smoke", "mode=train", "samples=256", "seed=123", "pdeconfig.init_args.sample_rate=4", 
