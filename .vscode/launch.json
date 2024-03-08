@@ -18,15 +18,15 @@
             "request": "launch",
             "program": "${workspaceFolder}/scripts/train.py",
             "console": "integratedTerminal",
-            "justMyCode": true,
+            "justMyCode": true, 
             "args": [
                 "-c", "configs/navierstokes2d.yaml",
-                "--data.data_dir=${workspaceFolder}/pdearena_data/NavierStokes2D_64x64/",
+                "--data.data_dir=${workspaceFolder}/pdearena_data/NavierStokes-2D-64x64-sample/data/",
                 "--trainer.strategy=ddp", "--trainer.devices=1",
                 "--trainer.max_epochs=50",
                 "--data.batch_size=8",
                 "--data.time_gap=0", "--data.time_history=4", "--data.time_future=1",
-                "--model.name=Unetmod-64",
+                "--model.name=Unet2015-64", // Unetbase-64, Unet2015-64, FNOs-96-32m, Unetmod-64 (original)
                 "--model.lr=2e-4",
                 "--optimizer=AdamW", "--optimizer.lr=2e-4", "--optimizer.weight_decay=1e-5",
                 "--lr_scheduler=LinearWarmupCosineAnnealingLR",
@@ -43,7 +43,7 @@
             "justMyCode": true,
             "args": [
                 "base=pdedatagen/configs/navierstokes2dsmoke.yaml",
-                "experiment=smoke", "mode=train", "samples=256", "seed=123", "pdeconfig.init_args.sample_rate=4", 
+                "experiment=smoke", "mode=train", "samples=100", "seed=123", "pdeconfig.init_args.sample_rate=4", 
                 "dirname=${workspaceFolder}/pdearena_data/navierstokes",
             ]
         }

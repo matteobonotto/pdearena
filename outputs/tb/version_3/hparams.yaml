@@ -1,0 +1,9 @@
+name: Unetmod-64
+time_history: 4
+time_future: 1
+time_gap: 0
+max_num_steps: 5
+activation: gelu
+criterion: mse
+lr: 0.0002
+model: null

@@ -12,7 +12,7 @@ from pytorch_lightning import seed_everything
 from pytorch_lightning.cli import instantiate_class
 
 from pdedatagen.maxwell import generate_trajectories_maxwell
-from pdedatagen.navier_stokes import generate_trajectories_smoke
+from pdedatagen.navier_stokes_bkp import generate_trajectories_smoke
 from pdedatagen.shallowwater import generate_trajectories_shallowwater
 
 import os

@@ -62,7 +62,7 @@ trainer:
   limit_predict_batches: null
   val_check_interval: null
   log_every_n_steps: 50
-  accelerator: cpu
+  accelerator: gpu
   strategy: null
   sync_batchnorm: false
   precision: 32
@@ -106,7 +106,7 @@ data:
 
   batch_size: 8
   pin_memory: True
-  num_workers: 1
+  num_workers: 20
   train_limit_trajectories: -1
   valid_limit_trajectories: -1
   test_limit_trajectories: -1
