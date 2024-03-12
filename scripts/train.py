@@ -5,12 +5,14 @@ import sys
 sys.path.append(os.getcwd())
 
 from pdearena import utils
-
+import torch
 from pdearena.data.datamodule import PDEDataModule
 from pdearena.lr_scheduler import LinearWarmupCosineAnnealingLR  # noqa: F401
 from pdearena.models.pdemodel import PDEModel
 
 logger = utils.get_logger(__name__)
+
+torch.set_float32_matmul_precision("highest") #"highest", "high"
 
 
 def setupdir(path):
