@@ -360,6 +360,8 @@ class PDEEvalTimeStepData(dp.iter.IterDataPipe):
         # We ignore these timesteps in the testing
         start_time = [t for t in range(0, max_start_time + 1, self.time_gap + self.time_future)]
         for start in start_time:
+            # for i,d in enumerate(self.dp):
+            #     print(i)
             for u, v, cond, grid in self.dp:
                 end_time = start + self.time_history
                 target_start_time = end_time + self.time_gap

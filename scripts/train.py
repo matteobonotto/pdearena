@@ -10,6 +10,8 @@ from pdearena.data.datamodule import PDEDataModule
 from pdearena.lr_scheduler import LinearWarmupCosineAnnealingLR  # noqa: F401
 from pdearena.models.pdemodel import PDEModel
 
+os.system('export LD_LIBRARY_PATH=/usr/lib/wsl/lib:$LD_LIBRARY_PATH')
+
 logger = utils.get_logger(__name__)
 
 torch.set_float32_matmul_precision("highest") #"highest", "high"

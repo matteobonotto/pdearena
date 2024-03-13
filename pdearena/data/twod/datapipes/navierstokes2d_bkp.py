@@ -4,18 +4,10 @@ import functools
 from typing import Optional
 
 import h5py
-import hdf5plugin
 import torch
 import torchdata.datapipes as dp
-import _pickle as cPickle
-import pickle 
-from pdearena.data.datapipes_common import build_datapipes
 
-'''
-with open(path,'rb') as filehandler:
-    f = cPickle.load(filehandler)
-data = f[self.mode]
-'''
+from pdearena.data.datapipes_common import build_datapipes
 
 
 class NavierStokesDatasetOpener(dp.iter.IterDataPipe):
@@ -41,84 +33,64 @@ class NavierStokesDatasetOpener(dp.iter.IterDataPipe):
 
     def __iter__(self):
         for path in self.dp:
-            if 'h5' in path:
-                with h5py.File(path, "r") as f:
-                    data = f[self.mode]
-                    if self.limit_trajectories is None or self.limit_trajectories == -1:
-                        num = data["u"].shape[0]
+            with h5py.File(path, "r") as f:
+                data = f[self.mode]
+                if self.limit_trajectories is None or self.limit_trajectories == -1:
+                    num = data["u"].shape[0]
+                else:
+                    num = self.limit_trajectories
+
+                iter_start = 0
+                iter_end = num
+
+                for idx in range(iter_start, iter_end):
+                    u = torch.tensor(data["u"][idx])
+                    vx = torch.tensor(data["vx"][idx])
+                    vy = torch.tensor(data["vy"][idx])
+                    if "buo_y" in data and self.conditioned:
+                        cond = torch.tensor(data["buo_y"][idx]).unsqueeze(0).float()
                     else:
-                        num = self.limit_trajectories
+                        cond = None
 
-                    iter_start = 0
-                    iter_end = num
+                    v = torch.cat((vx[:, None], vy[:, None]), dim=1)
 
-                    for idx in range(iter_start, iter_end):
-                        u = torch.tensor(data["u"][idx])
-                        vx = torch.tensor(data["vx"][idx])
-                        vy = torch.tensor(data["vy"][idx])
-                        if "buo_y" in data and self.conditioned:
-                            cond = torch.tensor(data["buo_y"][idx]).unsqueeze(0).float()
-                        else:
-                            cond = None
-
-                        v = torch.cat((vx[:, None], vy[:, None]), dim=1)
-
-                        if self.usegrid:
-                            gridx = torch.linspace(0, 1, data["x"][idx].shape[0])
-                            gridy = torch.linspace(0, 1, data["y"][idx].shape[0])
-                            gridx = gridx.reshape(1,gridx.size(0),1,).repeat(1,1,gridy.size(0))
-                            gridy = gridy.reshape(1,1,gridy.size(0),).repeat(1,gridx.size(1),1,)
-                            grid = torch.cat((gridx[:, None], gridy[:, None]), dim=1)
-                        else:
-                            grid = None
-                        yield u.unsqueeze(1).float(), v.float(), cond, grid
-
-            elif ('pkl' in path) & ('yaml' not in path):
-                with open(path,'rb') as filehandler:
-                    # print(path)
-                    f = cPickle.load(filehandler)
-                    data = f[self.mode]
-                    if self.limit_trajectories is None or self.limit_trajectories == -1:
-                        num = data["u"].shape[0]
+                    if self.usegrid:
+                        gridx = torch.linspace(0, 1, data["x"][idx].shape[0])
+                        gridy = torch.linspace(0, 1, data["y"][idx].shape[0])
+                        gridx = gridx.reshape(
+                            1,
+                            gridx.size(0),
+                            1,
+                        ).repeat(
+                            1,
+                            1,
+                            gridy.size(0),
+                        )
+                        gridy = gridy.reshape(
+                            1,
+                            1,
+                            gridy.size(0),
+                        ).repeat(
+                            1,
+                            gridx.size(1),
+                            1,
+                        )
+                        grid = torch.cat((gridx[:, None], gridy[:, None]), dim=1)
                     else:
-                        num = self.limit_trajectories
-
-                    iter_start = 0
-                    iter_end = num
-
-                    for idx in range(iter_start, iter_end):
-                        u = torch.tensor(data["u"][idx])
-                        vx = torch.tensor(data["vx"][idx])
-                        vy = torch.tensor(data["vy"][idx])
-                        if "buo_y" in data and self.conditioned:
-                            cond = torch.tensor(data["buo_y"][idx]).unsqueeze(0).float()
-                        else:
-                            cond = None
-
-                        v = torch.cat((vx[:, None], vy[:, None]), dim=1)
-
-                        if self.usegrid:
-                            gridx = torch.linspace(0, 1, data["x"][idx].shape[0])
-                            gridy = torch.linspace(0, 1, data["y"][idx].shape[0])
-                            gridx = gridx.reshape(1,gridx.size(0),1,).repeat(1,1,gridy.size(0))
-                            gridy = gridy.reshape(1,1,gridy.size(0),).repeat(1,gridx.size(1),1,)
-                            grid = torch.cat((gridx[:, None], gridy[:, None]), dim=1)
-                        else:
-                            grid = None
-                        yield u.unsqueeze(1).float(), v.float(), cond, grid
-
+                        grid = None
+                    yield u.unsqueeze(1).float(), v.float(), cond, grid
 
 
 def _train_filter(fname):
-    return "train" in fname and ("h5" in fname or "pkl" in fname)
+    return "train" in fname and "h5" in fname
 
 
 def _valid_filter(fname):
-    return "valid" in fname and ("h5" in fname or "pkl" in fname)
+    return "valid" in fname and "h5" in fname
 
 
 def _test_filter(fname):
-    return "test" in fname and ("h5" in fname or "pkl" in fname)
+    return "test" in fname and "h5" in fname
 
 
 train_datapipe_ns = functools.partial(
