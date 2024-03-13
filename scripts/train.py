@@ -41,9 +41,9 @@ def main():
     logger.info(f"Checkpoints and logs will be saved in {cli.trainer.default_root_dir}")
     logger.info("Starting training...")
     cli.trainer.fit(cli.model, datamodule=cli.datamodule)
-    if not cli.trainer.fast_dev_run:
-        logger.info("Starting testing...")
-        cli.trainer.test(ckpt_path="best", datamodule=cli.datamodule)
+    # if not cli.trainer.fast_dev_run:
+    #     logger.info("Starting testing...")
+    #     cli.trainer.test(ckpt_path="best", datamodule=cli.datamodule)
 
 
 if __name__ == "__main__":

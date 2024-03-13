@@ -34,7 +34,7 @@ trainer:
       log_momentum: false
   - class_path: pytorch_lightning.callbacks.TQDMProgressBar
     init_args:
-      refresh_rate: 1
+      refresh_rate: 50
       process_position: 0
   - class_path: pytorch_lightning.callbacks.ModelCheckpoint
     init_args:
@@ -67,7 +67,7 @@ trainer:
   check_val_every_n_epoch: 1
   fast_dev_run: false
   accumulate_grad_batches: null
-  max_epochs: 50
+  max_epochs: 2
   min_epochs: 1
   max_steps: -1
   min_steps: null
@@ -78,7 +78,7 @@ trainer:
   limit_predict_batches: null
   val_check_interval: null
   log_every_n_steps: 50
-  accelerator: cpu
+  accelerator: gpu
   strategy: ddp
   sync_batchnorm: false
   precision: 32
@@ -95,12 +95,12 @@ trainer:
   detect_anomaly: false
   auto_scale_batch_size: false
   plugins: null
-  amp_backend: native
-  amp_level: null
+  amp_backend: apex
+  amp_level: O2
   move_metrics_to_cpu: false
   multiple_trainloader_mode: max_size_cycle
 model:
-  name: Unetmod-64
+  name: Unet2015-64
   max_num_steps: 5
   activation: gelu
   criterion: mse
@@ -108,7 +108,7 @@ model:
   model: null
 data:
   task: NavierStokes2D
-  data_dir: /mnt/c/Users/eid0112947/OneDrive - Eni/Documenti/RESEARCH/pdearena/pdearena_data/NavierStokes2D_64x64/
+  data_dir: /Users/matte/Documents/RESEARCH/FORKED/sci_ML/pdearena/pdearena_data/NavierStokes-2D-64x64_pkl/
   time_history: 4
   time_future: 1
   time_gap: 0
@@ -137,6 +137,8 @@ optimizer:
     maximize: false
     foreach: null
     capturable: false
+    differentiable: false
+    fused: null
 lr_scheduler:
   class_path: pdearena.lr_scheduler.LinearWarmupCosineAnnealingLR
   init_args:

@@ -38,8 +38,8 @@ def main():
 
     t1 = time()
     for i, (X,y) in enumerate(tqdm(cli.datamodule.test_dataloader()[0])):
-        a = X.to(torch.device('cuda')).max()
-        # a = X.max()
+        # a = X.to(torch.device('cuda')).max()
+        a = X.max()
     t2 = time() - t1
     print('time per iteration : {:0.5f}s'.format(t2/i))
 
@@ -49,7 +49,6 @@ def main():
     ON: DELL LATITUDE (NVIDIA GEFORCE MX 550)
     batch_size = 8, num_workers = 0
 
-    hdf5 uncompressed (Original dataset)
     1625it [04:38,  5.83it/s]
     time per iteration : 0.17152s
 
@@ -74,6 +73,14 @@ def main():
     hdf5 compressed (blosc_lz4)
     1632it [02:45,  9.88it/s]
     time per iteration : 0.10125s
+    '''
+
+    '''
+    ON: MACBOOK PRO (M1 PRO)
+    batch_size = 8, num_workers = 20
+    
+    1625it [00:17, 90.93it/s] 
+    time per iteration : 0.01103s
     '''
 
 

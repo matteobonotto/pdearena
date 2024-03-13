@@ -19,6 +19,7 @@
             "program": "${workspaceFolder}/scripts/train.py",
             "console": "integratedTerminal",
             "justMyCode": false, 
+            "env": {"PYTEST_ADDOPTS": "--no-cov"},
             "args": [
                 "-c", "configs/navierstokes2d.yaml",
                 "--data.data_dir=${workspaceFolder}/pdearena_data/NavierStokes-2D-64x64_pkl/",
@@ -40,6 +41,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/scripts/train_check_dataloader_perf.py",
             "console": "integratedTerminal",
+            "env": {"PYTEST_ADDOPTS": "--no-cov"},
             "justMyCode": false, 
             "args": [
                 "-c", "configs/navierstokes2d.yaml",

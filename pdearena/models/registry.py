@@ -1,4 +1,5 @@
 from cliffordlayers.models.basic.threed import CliffordFourierBasicBlock3d
+# CliffordFourierBasicBlock3d = None
 
 from pdearena import utils
 from pdearena.modules.conditioned.twod_resnet import (
