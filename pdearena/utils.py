@@ -7,9 +7,11 @@ from functools import partialmethod
 from typing import Tuple
 
 import torch
-from pytorch_lightning.cli import LightningCLI
-from pytorch_lightning.utilities.rank_zero import rank_zero_only
+# from pytorch_lightning.cli import LightningCLI
+# from pytorch_lightning.utilities.rank_zero import rank_zero_only
 
+from lightning.pytorch.cli import LightningCLI
+from lightning.pytorch.utilities.rank_zero import rank_zero_only
 
 class Timer:
     def __enter__(self):

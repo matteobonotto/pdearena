@@ -3,7 +3,8 @@
 from typing import Optional
 
 import torch
-from pytorch_lightning import LightningDataModule
+# from pytorch_lightning import LightningDataModule
+from lightning.pytorch import LightningDataModule
 from torch.utils.data import DataLoader
 
 from .registry import DATAPIPE_REGISTRY
@@ -82,11 +83,12 @@ class PDEDataModule(LightningDataModule):
         valid_limit_trajectories: int,
         test_limit_trajectories: int,
         usegrid: bool = False,
+        persistent_workers: bool = False,
     ):
         super().__init__()
         self.data_dir = data_dir
         self.pde = pde
-
+        self.persistent_workers = persistent_workers
         self.save_hyperparameters(ignore="pde", logger=False)
 
     def setup(self, stage: Optional[str] = None):
@@ -146,6 +148,7 @@ class PDEDataModule(LightningDataModule):
             shuffle=True,
             drop_last=True,
             collate_fn=collate_fn_cat,
+            persistent_workers=self.persistent_workers,
         )
 
     def val_dataloader(self):
@@ -156,6 +159,7 @@ class PDEDataModule(LightningDataModule):
             batch_size=self.hparams.batch_size,
             shuffle=False,
             collate_fn=collate_fn_cat,
+            persistent_workers=self.persistent_workers,
         )
         rollout_loader = DataLoader(
             dataset=self.valid_dp2,
@@ -164,6 +168,7 @@ class PDEDataModule(LightningDataModule):
             batch_size=self.hparams.batch_size,  # TODO: might need to reduce this
             shuffle=False,
             collate_fn=collate_fn_stack,
+            persistent_workers=self.persistent_workers,
         )
         return [timestep_loader, rollout_loader]
 
@@ -175,6 +180,7 @@ class PDEDataModule(LightningDataModule):
             batch_size=self.hparams.batch_size,
             shuffle=False,
             collate_fn=collate_fn_stack,
+            persistent_workers=self.persistent_workers,
         )
         timestep_loader = DataLoader(
             dataset=self.test_dp_onestep,
@@ -183,5 +189,6 @@ class PDEDataModule(LightningDataModule):
             batch_size=self.hparams.batch_size,
             shuffle=False,
             collate_fn=collate_fn_cat,
+            persistent_workers=self.persistent_workers,
         )
         return [timestep_loader, rollout_loader]

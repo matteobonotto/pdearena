@@ -39,6 +39,21 @@ class NavierStokesDatasetOpener(dp.iter.IterDataPipe):
         self.usegrid = usegrid
         self.conditioned = conditioned
 
+    def __len__(self):
+        # NOTE: assuming all chunks with the same number of files inside
+        # if drop_last=True we are overestimating the length
+        path = next(iter(self.dp))
+        if 'h5' in path:
+            with h5py.File(path, "r") as f:
+                data = f[self.mode]
+                length = data['u'].shape[0]*len([p for p in self.dp])
+        elif ('pkl' in path) & ('yaml' not in path):
+            with open(path,'rb') as filehandler:
+                f = cPickle.load(filehandler)
+                data = f[self.mode]
+                length = data['u'].shape[0]*len([p for p in self.dp])
+        return length
+
     def __iter__(self):
         for path in self.dp:
             if 'h5' in path:

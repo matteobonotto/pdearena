@@ -28,9 +28,19 @@ def main():
         PDEModel,
         datamodule_class=PDEDataModule,
         seed_everything_default=42,
-        save_config_overwrite=True,
+        # save_config_overwrite=True,
+        # save_config_callback = SaveConfigCallback(
+        #     overwrite=True,
+        #     parser='omegaconf',
+        #     config=
+        #     ),
         run=False,
-        parser_kwargs={"parser_mode": "omegaconf"},
+        # parser_kwargs={"parser_mode": "omegaconf"},
+    )
+
+    cli.config.data.data_dir = os.path.join(
+        os.getcwd(),
+        cli.config.data.data_dir
     )
     if cli.trainer.default_root_dir is None:
         logger.warning("No default root dir set, using: ")
@@ -41,6 +51,8 @@ def main():
     logger.info(f"Checkpoints and logs will be saved in {cli.trainer.default_root_dir}")
     logger.info("Starting training...")
     cli.trainer.fit(cli.model, datamodule=cli.datamodule)
+
+    
     # if not cli.trainer.fast_dev_run:
     #     logger.info("Starting testing...")
     #     cli.trainer.test(ckpt_path="best", datamodule=cli.datamodule)

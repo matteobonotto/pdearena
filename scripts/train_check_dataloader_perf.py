@@ -11,6 +11,9 @@ from pdearena.lr_scheduler import LinearWarmupCosineAnnealingLR  # noqa: F401
 from pdearena.models.pdemodel import PDEModel
 from tqdm import tqdm
 from time import time
+from lightning.pytorch.cli import SaveConfigCallback
+
+
 logger = utils.get_logger(__name__)
 
 torch.set_float32_matmul_precision("highest") #"highest", "high"
@@ -27,11 +30,21 @@ def main():
         PDEModel,
         datamodule_class=PDEDataModule,
         seed_everything_default=42,
-        save_config_overwrite=True,
+        # save_config_overwrite=True,
+        # save_config_callback = SaveConfigCallback(
+        #     overwrite=True,
+        #     parser='omegaconf',
+        #     config=
+        #     ),
         run=False,
-        parser_kwargs={"parser_mode": "omegaconf"},
+        # parser_kwargs={"parser_mode": "omegaconf"},
     )
     # cli.config.data.num_workers = 20
+    
+    cli.config.data.data_dir = os.path.join(
+        os.getcwd(),
+        cli.config.data.data_dir
+    )
 
     dm = cli.datamodule
     cli.datamodule.setup()
@@ -77,10 +90,11 @@ def main():
 
     '''
     ON: MACBOOK PRO (M1 PRO)
-    batch_size = 8, num_workers = 20
+    batch_size = 8, num_workers = 20, persistent_workers = True
     
-    1625it [00:17, 90.93it/s] 
-    time per iteration : 0.01103s
+    Pikled dataset
+    1625it [00:11, 143.60it/s]
+    time per iteration : 0.01007s
     '''
 
 

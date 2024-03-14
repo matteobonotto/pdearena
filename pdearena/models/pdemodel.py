@@ -3,8 +3,11 @@
 from typing import Any, Dict, List, Optional
 
 import torch
-from pytorch_lightning import LightningModule
-from pytorch_lightning.cli import instantiate_class
+# from pytorch_lightning import LightningModule
+# from pytorch_lightning.cli import instantiate_class
+
+from lightning.pytorch import LightningModule
+from lightning.pytorch.cli import instantiate_class
 
 from pdearena import utils
 from pdearena.data.utils import PDEDataConfig
@@ -106,6 +109,9 @@ class PDEModel(LightningModule):
             reduced_time_resolution - self.hparams.time_future * self.hparams.max_num_steps - self.hparams.time_gap
         )
 
+        self.validation_step_outputs = []
+        self.test_step_outputs = []
+
     def forward(self, *args):
         return self.model(*args)
 
@@ -148,7 +154,8 @@ class PDEModel(LightningModule):
         else:
             raise NotImplementedError(f"{self._mode}")
 
-    def training_epoch_end(self, outputs: List[Any]):
+    # def training_epoch_end(self, outputs: List[Any]):
+    def on_train_epoch_end(self, outputs: List[Any]):
         # `outputs` is a list of dicts returned from `training_step()`
         for key in outputs[0].keys():
             if "loss" in key:
@@ -234,7 +241,9 @@ class PDEModel(LightningModule):
                 "unrolled_chan_avg_loss": chan_avg_loss,
             }
 
-    def validation_epoch_end(self, outputs: List[Any]):
+    # def validation_epoch_end(self, outputs: List[Any]):
+    def on_validation_epoch_end(self):
+        outputs = self.validation_step_outputs
         if len(outputs) > 1:
             if len(outputs[0]) > 0:
                 for key in outputs[0][0].keys():
@@ -255,6 +264,7 @@ class PDEModel(LightningModule):
                 mean, std = utils.bootstrap(unrolled_loss, 64, 1)
                 self.log("valid/unrolled_loss_mean", mean)
                 self.log("valid/unrolled_loss_std", std)
+
 
     def test_step(self, batch: Any, batch_idx: int, dataloader_idx: int = 0):
         if dataloader_idx == 0:
@@ -289,7 +299,9 @@ class PDEModel(LightningModule):
                 "loss_timesteps": loss_t,
             }
 
-    def test_epoch_end(self, outputs: List[Any]):
+    # def test_epoch_end(self, outputs: List[Any]):
+    def on_test_epoch_end(self):
+        outputs = self.test_step_outputs
         assert len(outputs) > 1
         if len(outputs[0]) > 0:
             for key in outputs[0][0].keys():

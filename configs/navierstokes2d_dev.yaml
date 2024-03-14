@@ -1,0 +1,141 @@
+seed_everything: 42
+trainer:
+  default_root_dir: ${oc.env:PDEARENA_OUTPUT_DIR,outputs}
+  logger:
+    class_path: lightning.pytorch.loggers.tensorboard.TensorBoardLogger
+    init_args:
+      save_dir: ${trainer.default_root_dir}/tb
+      name: null
+      version: null
+      log_graph: False
+      default_hp_metric: True
+      prefix: ""
+  enable_checkpointing: true
+  callbacks:
+    - class_path: lightning.pytorch.callbacks.Timer
+      init_args:
+        interval: "epoch"
+    - class_path: lightning.pytorch.callbacks.RichModelSummary
+      init_args:
+        max_depth: -1
+    - class_path: lightning.pytorch.callbacks.LearningRateMonitor
+      init_args:
+        logging_interval: "step"
+    - class_path: lightning.pytorch.callbacks.TQDMProgressBar
+      init_args:
+        refresh_rate: 50
+    # - class_path: cliffno.callbacks.Plot2DTrajPredsCallback
+    #   init_args:
+    #     trajidx: 0
+    #     save_dir: ${trainer.default_root_dir}/imgs
+    # - class_path: cliffno.callbacks.OneStep2DPredsCallback
+    #   init_args:
+    #     save_dir: ${trainer.default_root_dir}/imgs/onestep
+    - class_path: lightning.pytorch.callbacks.ModelCheckpoint
+      init_args:
+        monitor: "valid/unrolled_loss_mean" # name of the logged metric which determines when model is improving
+        mode: "min" # "max" means higher metric value is better, can be also "min"
+        save_top_k: 5 # save k best models (determined by above metric)
+        save_last: true # additionally always save model from last epoch
+        verbose: false
+        dirpath: ${trainer.default_root_dir}/ckpts
+        filename: "epoch_{epoch:03d}"
+        auto_insert_metric_name: False
+
+  gradient_clip_val: null
+  gradient_clip_algorithm: null
+
+  num_nodes: 1
+  enable_progress_bar: true
+  overfit_batches: 0.0
+  check_val_every_n_epoch: 1
+  fast_dev_run: false
+  # accumulate_grad_batches: null # to be used if DDP is used
+  max_epochs: 2
+  min_epochs: 1
+  max_steps: -1
+  min_steps: null
+  max_time: null
+  limit_train_batches: null
+  limit_val_batches: null
+  limit_test_batches: null
+  limit_predict_batches: null
+  val_check_interval: null
+  log_every_n_steps: 50
+  accelerator: gpu #cpu #gpu
+  # devices: 1
+  # strategy: ddp
+  sync_batchnorm: false
+  precision: 32
+  enable_model_summary: true
+  # weights_save_path: null #**
+  num_sanity_val_steps: 2
+  # resume_from_checkpoint: null #**
+  profiler: null
+  benchmark: null
+  deterministic: false
+  reload_dataloaders_every_n_epochs: 0
+  # auto_lr_find: false #**
+  # replace_sampler_ddp: true #**
+  detect_anomaly: false
+  # auto_scale_batch_size: false #**
+  plugins: null
+  # move_metrics_to_cpu: false #**
+  # multiple_trainloader_mode: max_size_cycle #**
+  # amp_backend: 'apex' #**
+  # amp_level: 'O2' #**
+
+model:
+  name: "Unet2015-64" #// FourierResNet, Unetbase-64, Unet2015-64, FNOs-96-32m, Unetmod-64 (original)
+  max_num_steps: 5
+  activation: "gelu"
+  criterion: mse
+  lr: 2e-4
+
+
+
+data:
+  # data_dir: "${workspaceFolder}/pdearena_data/NavierStokes-2D-64x64_pkl/" #//64x64_blosc_lz4, //64x64_pkl
+  data_dir: 'pdearena_data/NavierStokes-2D-64x64_pkl/'
+  task: "NavierStokes2D"
+  time_history: 4
+  time_future: 1
+  time_gap: 0
+  pde:
+      n_scalar_components: 1
+      n_vector_components: 1
+      trajlen: 14
+      n_spatial_dim: 2
+
+  batch_size: 8
+  pin_memory: True
+  persistent_workers: True
+  num_workers: 8
+  train_limit_trajectories: -1
+  valid_limit_trajectories: -1
+  test_limit_trajectories: -1
+
+
+# optimizer:
+#   class_path: torch.optim.AdamW
+#   weight_decay: 1e-5
+#   init_args:
+#     lr: 2e-4
+
+
+# lr_scheduler:
+#   class_path: torch.optim.lr_scheduler.ExponentialLR
+#   init_args:
+#     gamma: 0.99
+#     verbose: True
+
+lr_scheduler:
+  class_path: pdearena.lr_scheduler.LinearWarmupCosineAnnealingLR
+  init_args:
+    warmup_epochs: 5
+    max_epochs: 50
+    warmup_start_lr: 1e-8
+    eta_min: 1e-7
+
+
+
