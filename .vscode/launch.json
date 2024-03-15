@@ -67,7 +67,7 @@
             "justMyCode": true,
             "args": [
                 "base=pdedatagen/configs/navierstokes2dsmoke.yaml",
-                "experiment=smoke", "mode=train", "samples=8", "seed=123", "pdeconfig.init_args.sample_rate=4", 
+                "experiment=smoke", "mode=train", "samples=100", "seed=123", "pdeconfig.init_args.sample_rate=4", 
                 "dirname=${workspaceFolder}/pdearena_data/navierstokes",
             ]
         }

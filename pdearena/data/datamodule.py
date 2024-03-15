@@ -146,6 +146,7 @@ class PDEDataModule(LightningDataModule):
             shuffle=True,
             drop_last=True,
             collate_fn=collate_fn_cat,
+            persistent_workers=True,
         )
 
     def val_dataloader(self):
@@ -156,6 +157,7 @@ class PDEDataModule(LightningDataModule):
             batch_size=self.hparams.batch_size,
             shuffle=False,
             collate_fn=collate_fn_cat,
+            persistent_workers=True,
         )
         rollout_loader = DataLoader(
             dataset=self.valid_dp2,
@@ -164,6 +166,7 @@ class PDEDataModule(LightningDataModule):
             batch_size=self.hparams.batch_size,  # TODO: might need to reduce this
             shuffle=False,
             collate_fn=collate_fn_stack,
+            persistent_workers=True,
         )
         return [timestep_loader, rollout_loader]
 
@@ -175,6 +178,7 @@ class PDEDataModule(LightningDataModule):
             batch_size=self.hparams.batch_size,
             shuffle=False,
             collate_fn=collate_fn_stack,
+            persistent_workers=True,
         )
         timestep_loader = DataLoader(
             dataset=self.test_dp_onestep,
@@ -183,5 +187,6 @@ class PDEDataModule(LightningDataModule):
             batch_size=self.hparams.batch_size,
             shuffle=False,
             collate_fn=collate_fn_cat,
+            persistent_workers=True,
         )
         return [timestep_loader, rollout_loader]
