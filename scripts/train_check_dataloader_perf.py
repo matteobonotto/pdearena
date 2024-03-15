@@ -38,8 +38,8 @@ def main():
 
     t1 = time()
     for i, (X,y) in enumerate(tqdm(cli.datamodule.test_dataloader()[0])):
-        # a = X.to(torch.device('cuda')).max()
-        a = X.max()
+        a = X.to(torch.device('cuda')).max()
+        # a = X.max()
     t2 = time() - t1
     print('time per iteration : {:0.5f}s'.format(t2/i))
 
@@ -52,7 +52,7 @@ def main():
     1625it [04:38,  5.83it/s]
     time per iteration : 0.17152s
 
-    Pikled dataset
+    Pikled dataset (batched, each pickle has 100 samples)
     1625it [01:32, 17.55it/s]
     time per iteration : 0.05703s
 

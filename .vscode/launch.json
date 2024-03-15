@@ -22,7 +22,7 @@
             "env": {"PYTEST_ADDOPTS": "--no-cov"},
             "args": [
                 "-c", "configs/navierstokes2d.yaml",
-                "--data.data_dir=${workspaceFolder}/pdearena_data/NavierStokes-2D-64x64_pkl/",
+                "--data.data_dir=${workspaceFolder}/pdearena_data/NavierStokes-2D-64x64_pkl_single/",
                 "--trainer.strategy=ddp", "--trainer.devices=1",
                 "--trainer.max_epochs=2",
                 "--data.batch_size=8",
@@ -45,7 +45,7 @@
             "justMyCode": false, 
             "args": [
                 "-c", "configs/navierstokes2d.yaml",
-                "--data.data_dir=${workspaceFolder}/pdearena_data/NavierStokes-2D-64x64_pkl/", //64x64_blosc_lz4, //64x64_pkl
+                "--data.data_dir=${workspaceFolder}/pdearena_data/NavierStokes-2D-64x64_pkl_single/", //64x64_blosc_lz4, //64x64_pkl
                 "--trainer.strategy=ddp", "--trainer.devices=1",
                 "--trainer.max_epochs=2",
                 "--data.batch_size=8",
