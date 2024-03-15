@@ -60,8 +60,14 @@ def build_datapipes(
     if mode == "train":
         dpipe = dpipe.shuffle()
 
-    dpipe = dataset_opener(
-        sharder(dpipe),
+    # see https://pytorch.org/data/beta/dp_tutorial.html
+    # Place ShardingFilter (datapipe.sharding_filter) as early as possible in the pipeline, 
+    # especially before expensive operations such as decoding, in order to avoid repeating 
+    # these expensive operations across worker/distributed processes.
+    dpipe = sharder(dpipe) 
+
+    dpipe = dataset_opener( 
+        dpipe, 
         mode=mode,
         limit_trajectories=limit_trajectories,
         usegrid=usegrid,

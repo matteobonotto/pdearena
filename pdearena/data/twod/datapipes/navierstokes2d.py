@@ -7,6 +7,7 @@ import h5py
 import hdf5plugin
 import torch
 import torchdata.datapipes as dp
+from torchdata.datapipes.iter import IterDataPipe, WebDataset
 import _pickle as cPickle
 import pickle 
 from pdearena.data.datapipes_common import build_datapipes
@@ -18,7 +19,7 @@ data = f[self.mode]
 '''
 
 
-class NavierStokesDatasetOpener(dp.iter.IterDataPipe):
+class NavierStokesDatasetOpener(IterDataPipe):
     """DataPipe to load Navier-Stokes dataset.
 
     Args:
@@ -126,7 +127,7 @@ train_datapipe_ns = functools.partial(
     dataset_opener=NavierStokesDatasetOpener,
     filter_fn=_train_filter,
     lister=dp.iter.FileLister,
-    sharder=dp.iter.ShardingFilter,
+    sharder=dp.iter.ShardingFilter, # see https://pytorch.org/data/beta/dp_tutorial.html
     mode="train",
 )
 onestep_valid_datapipe_ns = functools.partial(
